@@ -1,0 +1,119 @@
+DS Module 2 - Slide 39
+
+sourcetype=access_combined action=purchase
+| kmeans k=3 price
+| stats values(product_name) as product, avg(price) as average_price by CLUSTERNUM
+
+DS Module 2 - Slide 43
+
+sourcetype=cisco_esa 
+| cluster t=0.2 showcount=t 
+| table cluster_label cluster_count _raw 
+| sort -cluster_count
+
+DS Module 2 - Slide 54
+sourcetype=linux_secure  | cluster showcount=t t=0.5 labelonly=t  | table cluster_label,cluster_count,_raw
+
+DS Module 2 - Slide 55
+
+sourcetype=linux_secure 
+| cluster showcount=t t=0.5 labelonly=t 
+| findkeywords labelfield=cluster_label
+
+
+
+
+DS Module 2 - Slide 56
+
+sourcetype=sendmail_syslog|correlate
+
+
+
+
+DS Module 2 - Slide 59
+
+
+
+|inputlookup phishing.csv|associate
+
+DS Module 2 - Slide 60
+
+|inputlookup titanic.csv
+| bin Age span=5
+| stats count by Age
+
+Slide 65 A
+sourcetype=access_combined 
+| head 4 
+| sort _time 
+| eventstats sum(bytes) as SumOfBytes by clientip 
+| table _time, bytes,SumOfBytes,clientip
+
+
+DS Module 2 - Slide 65_b
+sourcetype=access_combined 
+| head 4 
+| sort _time 
+| streamstats sum(bytes) as SumOfBytes by clientip 
+| table _time, bytes,SumOfBytes,clientip
+
+DS Module 2 - Slide 66
+
+sourcetype=access_combined
+| timechart span=1h    sum(bytes) by host 
+| foreach *    [eval <<FIELD>> = 
+  round(<<FIELD>>/(1024*1024),2)." MB"]
+  
+  
+  
+  
+  
+  
+  
+  DS Module 3 - Slide 78
+  
+  sourcetype=access_combined price=*
+  
+  
+  DS Module 3 - Slide 82
+  
+  | inputlookup auto-mpg.csv 
+| sample partitions=3 seed=56
+| search partition_number < 2
+
+
+
+DS Module 3 - Slide 88_a
+| inputlookup auto-mpg.csv | fit LinearRegression mpg as mpg(predicted) from hp
+
+
+DS Module 3 - Slide 88_b
+
+
+|inputlookup auto-mpg.csv|fit LinearRegression mpg from hp into mpg_model
+
+DS Module 3 - Slide 88_c
+
+|inputlookup auto-mpg.csv|fit KMeans k=4 hp
+
+
+DS Module 3 - Slide 89
+
+
+| inputlookup auto-mpg.csv 
+| sample partitions=3 seed=71 
+| search partition_number < 2 
+| fit LinearRegression mpg from hp weight into mpg_model_LinearRegression
+
+
+
+
+DS Module 3 - Slide 90
+
+|inputlookup auto-mpg.csv
+| sample partitions=3 seed=56
+| search partition_number < 2
+| fit KMeans mpg hp weight into auto_model_KMeans
+
+
+| inputlookup auto-mpg.csv | fit LinearRegression mpg as mpg(predicted) from hp
